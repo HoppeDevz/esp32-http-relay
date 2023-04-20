@@ -1,6 +1,9 @@
 ## ESP32 HTTP PORT FORWARD
 
 
+<img src="./diagram.png" />
+
+
 ## Installation
 
 ### *Server Side*
