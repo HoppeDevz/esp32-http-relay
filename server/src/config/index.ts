@@ -3,7 +3,6 @@ export const CONFIG = {
     WEBSOCKET_PORT: 32512,
 
     HTTP_RELAYS: [
-        30120,
-        30121
+        { from: 3120, to: 30120 }
     ]
 }

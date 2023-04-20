@@ -7,13 +7,19 @@ import type { WebsocketServer } from "../@websocket";
 export class HttpRelay {
 
     private websocketServer: WebsocketServer;
-    private port: number;
+
+    private serverPort: number;
+    private localPort: number;
+
     private application: Application;
 
-    constructor(websocketServer: WebsocketServer, port: number) {
+    constructor(websocketServer: WebsocketServer, serverPort: number, localPort: number) {
 
         this.websocketServer = websocketServer;
-        this.port = port;
+
+        this.serverPort = serverPort;
+        this.localPort = localPort;
+
         this.application = express();
 
         this.configureCORS();
@@ -40,7 +46,7 @@ export class HttpRelay {
 
             try {
 
-                const response = await this.websocketServer.relayHTTPRequest(path, method, headers, body, this.port);
+                const response = await this.websocketServer.relayHTTPRequest(path, method, headers, body, this.localPort);
 
                 res.status(response.httpCode).send(response.data);
 
@@ -57,9 +63,9 @@ export class HttpRelay {
 
     private startServer() {
 
-        this.application.listen(this.port, () => {
+        this.application.listen(this.serverPort, () => {
 
-            console.log(`[HTTP-RELAY-${this.port}] - Alive!`);
+            console.log(`[HTTP-RELAY-${this.localPort}] - Alive!`);
         });
     }
 }

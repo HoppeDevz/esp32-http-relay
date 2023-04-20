@@ -16,9 +16,10 @@ exports.HttpRelay = void 0;
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 class HttpRelay {
-    constructor(websocketServer, port) {
+    constructor(websocketServer, serverPort, localPort) {
         this.websocketServer = websocketServer;
-        this.port = port;
+        this.serverPort = serverPort;
+        this.localPort = localPort;
         this.application = (0, express_1.default)();
         this.configureCORS();
         this.bindMiddleware();
@@ -36,7 +37,7 @@ class HttpRelay {
             const body = (_b = req.body) !== null && _b !== void 0 ? _b : {};
             console.log({ body, headers });
             try {
-                const response = yield this.websocketServer.relayHTTPRequest(path, method, headers, body, this.port);
+                const response = yield this.websocketServer.relayHTTPRequest(path, method, headers, body, this.localPort);
                 res.status(response.httpCode).send(response.data);
             }
             catch (err) {
@@ -48,8 +49,8 @@ class HttpRelay {
         }));
     }
     startServer() {
-        this.application.listen(this.port, () => {
-            console.log(`[HTTP-RELAY-${this.port}] - Alive!`);
+        this.application.listen(this.serverPort, () => {
+            console.log(`[HTTP-RELAY-${this.localPort}] - Alive!`);
         });
     }
 }
