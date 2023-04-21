@@ -5,10 +5,14 @@
 #include "port_forward.h"
 #include "http_request.h"
 
+int HEARTBEAT_INTERVAL = 20000;
+int LAST_HEARTBEAT = millis();
+boolean CONNECTED_TO_MIDDLEWARE_SERVER = false;
+
 const char* ssid = "Rancho Wifi";
 const char* password = "guga@123";
 
-const char* webSocketUrl = "0.0.0.0";
+const char* webSocketUrl = "149.56.174.85";
 const uint16_t webSocketPort = 32512;
 
 WebSocketsClient webSocket;
@@ -19,10 +23,12 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
     
     case WStype_DISCONNECTED:
       Serial.println("Disconnected from WebSocket Server");
+      CONNECTED_TO_MIDDLEWARE_SERVER = false;
       break;
       
     case WStype_CONNECTED:
       Serial.println("Connected to WebSocket Server");
+      CONNECTED_TO_MIDDLEWARE_SERVER = true;
       break;
       
     case WStype_TEXT:
@@ -86,6 +92,17 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
   }
 }
 
+void heartBeat() {
+
+  uint64_t now = millis();
+  
+  if((now - LAST_HEARTBEAT) > HEARTBEAT_INTERVAL) {
+
+      LAST_HEARTBEAT = now;
+      webSocket.sendPing();
+  }
+}
+
 void setup() {
 
   Serial.begin(115200);
@@ -106,6 +123,10 @@ void setup() {
 }
 
 void loop() {
-  
-  webSocket.loop();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    
+    webSocket.loop();
+    heartBeat();
+  }
 }
